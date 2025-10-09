@@ -1,0 +1,90 @@
+# Production Error Catalog Example
+# This is a complete example catalog for production use
+# Copy and customize for your specific experiment
+
+version: 1.0.0
+schema_version: 1.0.0
+
+metadata:
+  name: "Production Climate Model Scan"
+  description: "Comprehensive error detection for production climate simulations"
+  author: "Climate DT Team"
+  created: "2025-10-09T12:00:00+00:00"
+  updated: "2025-10-09T12:00:00+00:00"
+
+errors:
+  # Critical errors that stop the workflow
+  OutOfMemory:
+    id: OutOfMemory
+    pattern:
+      type: regex
+      pattern: 'slurmstepd.*error.*Exceeded.*memory|oom-kill|Out of memory'
+      flags: ["IGNORECASE"]
+    files:
+      - ssh://mn5:/gpfs/scratch/ehpc01/awi478153/a23i/LOG_a23i/*.err
+      - ssh://mn5:/gpfs/scratch/ehpc01/awi478153/a23i/LOG_a23i/*.out
+    meaning: "Job exceeded allocated memory and was killed"
+    suggestion: "Increase memory allocation in job template or reduce model resolution"
+    context_lines: 10
+    next_errors: []
+    metadata:
+      severity: critical
+      category: resource
+      team: operations
+
+  ModelCrash:
+    id: ModelCrash
+    pattern:
+      type: regex
+      pattern: 'SIGSEGV|segmentation fault|forrtl.*error'
+      flags: ["IGNORECASE"]
+    files:
+      - ssh://mn5:/gpfs/scratch/ehpc01/awi478153/a23i/LOG_a23i/*.err
+      - ssh://mn5:/gpfs/scratch/ehpc01/awi478153/a23i/LOG_a23i/*.out
+    meaning: "Model crashed with segmentation fault"
+    suggestion: "Check model configuration, input data validity, and memory settings"
+    context_lines: 20
+    next_errors:
+      - error_id: DataCorruption
+        when:
+          type: always
+    metadata:
+      severity: critical
+      category: model
+      team: science
+
+  DataCorruption:
+    id: DataCorruption
+    pattern:
+      type: regex
+      pattern: 'NetCDF.*error|Invalid.*netcdf|corrupted|bad.*data'
+      flags: ["IGNORECASE"]
+    files:
+      - ssh://mn5:/gpfs/scratch/ehpc01/awi478153/a23i/LOG_a23i/*.err
+      - ssh://mn5:/gpfs/scratch/ehpc01/awi478153/a23i/LOG_a23i/*.out
+    meaning: "Data file corruption detected"
+    suggestion: "Verify input files, check disk space, re-stage data if needed"
+    context_lines: 15
+    next_errors: []
+    metadata:
+      severity: high
+      category: data
+      team: operations
+
+  MissingData:
+    id: MissingData
+    pattern:
+      type: regex
+      pattern: 'No such file|File not found|cannot open.*No such file'
+      flags: ["IGNORECASE"]
+    files:
+      - ssh://mn5:/gpfs/scratch/ehpc01/awi478153/a23i/LOG_a23i/*.err
+      - ssh://mn5:/gpfs/scratch/ehpc01/awi478153/a23i/LOG_a23i/*.out
+    meaning: "Required input file is missing"
+    suggestion: "Check data staging, verify file paths in configuration"
+    context_lines: 10
+    next_errors: []
+    metadata:
+      severity: critical
+      category: data
+      team: operations

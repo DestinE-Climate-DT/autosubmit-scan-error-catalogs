@@ -1,0 +1,221 @@
+# Default Autosubmit Error Catalog Template
+# This template is used by: as-scan <expid>
+#
+# Available variables:
+#   {{ expid }}      - Experiment ID (e.g., a23i, t001)
+#   {{ user }}       - Current username
+#   {{ host }}       - Target host (from AUTOSUBMIT_HOST or default: mn5)
+#   {{ base_path }}  - Base experiment path (from AUTOSUBMIT_BASE_PATH or default)
+#   {{ timestamp }}  - Current timestamp in ISO format
+
+version: 1.0.0
+schema_version: 1.0.0
+
+metadata:
+  name: "Autosubmit Scan for {{ expid }}"
+  description: "Default error catalog for Autosubmit experiment {{ expid }}"
+  author: "{{ user }}"
+  created: "{{ timestamp }}"
+  updated: "{{ timestamp }}"
+
+errors:
+  # Critical Errors - Job Failures
+  SlurmOutOfMemory:
+    id: SlurmOutOfMemory
+    pattern:
+      type: regex
+      pattern: 'slurmstepd.*error.*Exceeded.*memory|oom-kill|Out of memory|Killed.*memory'
+      flags: ["IGNORECASE"]
+    files:
+      - ssh://{{ host }}:{{ base_path }}/{{ expid }}/LOG_{{ expid }}/*.out
+      - ssh://{{ host }}:{{ base_path }}/{{ expid }}/LOG_{{ expid }}/*.err
+    meaning: "Job exceeded allocated memory and was killed by SLURM"
+    suggestion: "Increase memory allocation in job configuration"
+    context_lines: 10
+    next_errors: []
+    metadata:
+      severity: critical
+      category: resource
+
+  SlurmTimeLimit:
+    id: SlurmTimeLimit
+    pattern:
+      type: regex
+      pattern: 'TIME LIMIT|DUE TO TIME LIMIT|TIMEOUT|slurmstepd.*error.*time limit'
+      flags: ["IGNORECASE"]
+    files:
+      - ssh://{{ host }}:{{ base_path }}/{{ expid }}/LOG_{{ expid }}/*.out
+      - ssh://{{ host }}:{{ base_path }}/{{ expid }}/LOG_{{ expid }}/*.err
+    meaning: "Job exceeded allocated walltime and was terminated"
+    suggestion: "Increase walltime allocation or optimize job performance"
+    context_lines: 10
+    next_errors: []
+    metadata:
+      severity: critical
+      category: resource
+
+  SlurmNodeFailure:
+    id: SlurmNodeFailure
+    pattern:
+      type: regex
+      pattern: 'NODE FAILURE|node.*fail|SLURM_ERROR|launch failed|unable to launch'
+      flags: ["IGNORECASE"]
+    files:
+      - ssh://{{ host }}:{{ base_path }}/{{ expid }}/LOG_{{ expid }}/*.out
+      - ssh://{{ host }}:{{ base_path }}/{{ expid }}/LOG_{{ expid }}/*.err
+    meaning: "SLURM node failure or job launch problem"
+    suggestion: "Check node status and resubmit job. May be transient hardware issue."
+    context_lines: 10
+    next_errors: []
+    metadata:
+      severity: critical
+      category: infrastructure
+
+  # Python Errors
+  PythonTraceback:
+    id: PythonTraceback
+    pattern:
+      type: regex
+      pattern: 'Traceback \(most recent call last\)|^\s*File .*, line [0-9]+'
+      flags: ["MULTILINE"]
+    files:
+      - ssh://{{ host }}:{{ base_path }}/{{ expid }}/LOG_{{ expid }}/*.out
+      - ssh://{{ host }}:{{ base_path }}/{{ expid }}/LOG_{{ expid }}/*.err
+    meaning: "Python exception occurred during execution"
+    suggestion: "Review Python traceback for specific error and fix code"
+    context_lines: 15
+    next_errors:
+      - error_id: PythonImportError
+        when:
+          type: field_contains
+          field: matched_text
+          value: "ImportError"
+      - error_id: PythonKeyError
+        when:
+          type: field_contains
+          field: matched_text
+          value: "KeyError"
+    metadata:
+      severity: high
+      category: code
+
+  PythonImportError:
+    id: PythonImportError
+    pattern:
+      type: regex
+      pattern: 'ImportError|ModuleNotFoundError|No module named'
+      flags: ["IGNORECASE"]
+    files:
+      - ssh://{{ host }}:{{ base_path }}/{{ expid }}/LOG_{{ expid }}/*.out
+      - ssh://{{ host }}:{{ base_path }}/{{ expid }}/LOG_{{ expid }}/*.err
+    meaning: "Python module import failed"
+    suggestion: "Check Python environment and install missing dependencies"
+    context_lines: 10
+    next_errors: []
+    metadata:
+      severity: high
+      category: environment
+
+  PythonKeyError:
+    id: PythonKeyError
+    pattern:
+      type: literal
+      pattern: "KeyError"
+    files:
+      - ssh://{{ host }}:{{ base_path }}/{{ expid }}/LOG_{{ expid }}/*.out
+      - ssh://{{ host }}:{{ base_path }}/{{ expid }}/LOG_{{ expid }}/*.err
+    meaning: "Dictionary key access error in Python code"
+    suggestion: "Check data structure and key names in code"
+    context_lines: 10
+    next_errors: []
+    metadata:
+      severity: medium
+      category: code
+
+  # NetCDF/Data Errors
+  NetCDFError:
+    id: NetCDFError
+    pattern:
+      type: regex
+      pattern: 'NetCDF.*error|nc_open.*failed|Invalid.*netcdf'
+      flags: ["IGNORECASE"]
+    files:
+      - ssh://{{ host }}:{{ base_path }}/{{ expid }}/LOG_{{ expid }}/*.out
+      - ssh://{{ host }}:{{ base_path }}/{{ expid }}/LOG_{{ expid }}/*.err
+    meaning: "NetCDF file operation failed"
+    suggestion: "Check NetCDF file exists, is readable, and not corrupted"
+    context_lines: 10
+    next_errors: []
+    metadata:
+      severity: high
+      category: data
+
+  MissingInputFile:
+    id: MissingInputFile
+    pattern:
+      type: regex
+      pattern: 'No such file|File not found|cannot open.*No such file|FileNotFoundError'
+      flags: ["IGNORECASE"]
+    files:
+      - ssh://{{ host }}:{{ base_path }}/{{ expid }}/LOG_{{ expid }}/*.out
+      - ssh://{{ host }}:{{ base_path }}/{{ expid }}/LOG_{{ expid }}/*.err
+    meaning: "Required input file is missing"
+    suggestion: "Check file paths and ensure all input files exist"
+    context_lines: 10
+    next_errors: []
+    metadata:
+      severity: critical
+      category: data
+
+  # Fortran/Model Errors
+  FortranRuntimeError:
+    id: FortranRuntimeError
+    pattern:
+      type: regex
+      pattern: 'Fortran runtime error|forrtl.*error|SIGSEGV|segmentation fault'
+      flags: ["IGNORECASE"]
+    files:
+      - ssh://{{ host }}:{{ base_path }}/{{ expid }}/LOG_{{ expid }}/*.out
+      - ssh://{{ host }}:{{ base_path }}/{{ expid }}/LOG_{{ expid }}/*.err
+    meaning: "Fortran model runtime error or segmentation fault"
+    suggestion: "Check model configuration, input data, and memory settings"
+    context_lines: 15
+    next_errors: []
+    metadata:
+      severity: critical
+      category: model
+
+  MPIError:
+    id: MPIError
+    pattern:
+      type: regex
+      pattern: 'MPI.*error|mpi_abort|MPI_ERR|Fatal error in PMPI'
+      flags: ["IGNORECASE"]
+    files:
+      - ssh://{{ host }}:{{ base_path }}/{{ expid }}/LOG_{{ expid }}/*.out
+      - ssh://{{ host }}:{{ base_path }}/{{ expid }}/LOG_{{ expid }}/*.err
+    meaning: "MPI communication or initialization error"
+    suggestion: "Check MPI configuration, node communication, and process counts"
+    context_lines: 15
+    next_errors: []
+    metadata:
+      severity: critical
+      category: infrastructure
+
+  # General Errors
+  ErrorKeyword:
+    id: ErrorKeyword
+    pattern:
+      type: regex
+      pattern: '\bERROR\b|\bFATAL\b|\bCRITICAL\b'
+      flags: ["IGNORECASE"]
+    files:
+      - ssh://{{ host }}:{{ base_path }}/{{ expid }}/LOG_{{ expid }}/*.out
+      - ssh://{{ host }}:{{ base_path }}/{{ expid }}/LOG_{{ expid }}/*.err
+    meaning: "Generic error keyword found in logs"
+    suggestion: "Review error message for specific issue"
+    context_lines: 5
+    next_errors: []
+    metadata:
+      severity: medium
+      category: general

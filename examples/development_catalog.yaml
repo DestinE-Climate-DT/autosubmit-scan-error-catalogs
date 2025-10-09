@@ -1,0 +1,62 @@
+# Development Error Catalog Example
+# Minimal catalog for testing and development
+# Use this as a starting point for custom catalogs
+
+version: 1.0.0
+schema_version: 1.0.0
+
+metadata:
+  name: "Development Test Scan"
+  description: "Minimal error catalog for development and testing"
+  author: "Developer"
+  created: "2025-10-09T12:00:00+00:00"
+  updated: "2025-10-09T12:00:00+00:00"
+
+errors:
+  # Simple error detection for testing
+  ErrorKeyword:
+    id: ErrorKeyword
+    pattern:
+      type: literal
+      pattern: "ERROR"
+    files:
+      - /tmp/test_logs/*.log
+      - /tmp/test_logs/*.txt
+    meaning: "Generic ERROR keyword found"
+    suggestion: "Review the error message and context"
+    context_lines: 5
+    next_errors: []
+    metadata:
+      severity: medium
+      category: general
+
+  PythonException:
+    id: PythonException
+    pattern:
+      type: regex
+      pattern: 'Traceback \(most recent call last\)'
+    files:
+      - /tmp/test_logs/*.log
+    meaning: "Python exception occurred"
+    suggestion: "Check the traceback for details"
+    context_lines: 15
+    next_errors: []
+    metadata:
+      severity: high
+      category: code
+
+  WarningKeyword:
+    id: WarningKeyword
+    pattern:
+      type: regex
+      pattern: '\bWARNING\b|\bWARN\b'
+      flags: ["IGNORECASE"]
+    files:
+      - /tmp/test_logs/*.log
+    meaning: "Warning message detected"
+    suggestion: "Warnings may indicate potential issues"
+    context_lines: 3
+    next_errors: []
+    metadata:
+      severity: low
+      category: general
