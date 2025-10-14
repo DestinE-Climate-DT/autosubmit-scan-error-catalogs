@@ -33,11 +33,13 @@ metadata:
       pattern: "AUTOSUBMIT_EXPID"
       default: "a2sg"
 
-    # Extract HPC username - try environment first, then experiment metadata
-    # This allows overriding with: export AUTOSUBMIT_HPCUSER=myusername
+    # Extract HPC username from experiment metadata
+    # Can be overridden with: export AUTOSUBMIT_HPCUSER=myusername
     hpc_user:
-      source: "env"
-      pattern: "AUTOSUBMIT_HPCUSER"
+      source: "file"
+      path: "sftp://climatedt-wf/appl/AS/AUTOSUBMIT_DATA/{{ expid }}/conf/metadata/experiment_data.yml"
+      method: "yaml_path"
+      pattern: "HPCUSER"
       default: "unknown"
 
     # Extract remote HPC host from experiment metadata
