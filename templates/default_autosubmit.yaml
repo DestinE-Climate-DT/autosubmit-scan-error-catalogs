@@ -9,7 +9,7 @@
 #
 # Variables can be extracted from any fsspec-compatible source:
 #   - Local files: ~/.ssh/config
-#   - Remote SSH: ssh://climatedt-wf/path/to/config.yml
+#   - Remote SSH: sftp://climatedt-wf/path/to/config.yml
 #   - S3: s3://bucket/path/to/config.yml
 #   - GitHub: github://org:repo@ref/path/to/config.yml
 
@@ -43,7 +43,7 @@ metadata:
     # Extract remote HPC host from experiment metadata
     hpc_host:
       source: "file"
-      path: "ssh://climatedt-wf/appl/AS/AUTOSUBMIT_DATA/{{ expid }}/conf/metadata/experiment_data.yml"
+      path: "sftp://climatedt-wf/appl/AS/AUTOSUBMIT_DATA/{{ expid }}/conf/metadata/experiment_data.yml"
       method: "yaml_path"
       pattern: "HPCHOST"
       default: "unknown"
@@ -51,7 +51,7 @@ metadata:
     # Extract platform short name from experiment metadata
     platform_name:
       source: "file"
-      path: "ssh://climatedt-wf/appl/AS/AUTOSUBMIT_DATA/{{ expid }}/conf/metadata/experiment_data.yml"
+      path: "sftp://climatedt-wf/appl/AS/AUTOSUBMIT_DATA/{{ expid }}/conf/metadata/experiment_data.yml"
       method: "yaml_path"
       pattern: "HPCHPCARCH_SHORT"
       default: "unknown"
@@ -59,7 +59,7 @@ metadata:
     # Extract HPC log directory from experiment metadata
     hpc_log_dir:
       source: "file"
-      path: "ssh://climatedt-wf/appl/AS/AUTOSUBMIT_DATA/{{ expid }}/conf/metadata/experiment_data.yml"
+      path: "sftp://climatedt-wf/appl/AS/AUTOSUBMIT_DATA/{{ expid }}/conf/metadata/experiment_data.yml"
       method: "yaml_path"
       pattern: "HPCLOGDIR"
       default: "/tmp/LOG_{{ expid }}"
@@ -73,10 +73,10 @@ errors:
       pattern: 'slurmstepd.*error.*Exceeded.*memory|oom-kill|Out of memory|Killed.*memory'
       flags: ["IGNORECASE"]
     files:
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.out"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.out"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.err"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.err"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.out"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.out"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.err"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.err"
     meaning: "Job exceeded allocated memory and was killed by SLURM on platform: {{ platform_name }}"
     suggestion: "Increase memory allocation in job configuration"
     context_lines: 10
@@ -92,10 +92,10 @@ errors:
       pattern: 'TIME LIMIT|DUE TO TIME LIMIT|TIMEOUT|slurmstepd.*error.*time limit'
       flags: ["IGNORECASE"]
     files:
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.out"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.out"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.err"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.err"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.out"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.out"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.err"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.err"
     meaning: "Job exceeded allocated walltime and was terminated on platform: {{ platform_name }}"
     suggestion: "Increase walltime allocation or optimize job performance"
     context_lines: 10
@@ -111,10 +111,10 @@ errors:
       pattern: 'NODE FAILURE|node.*fail|SLURM_ERROR|launch failed|unable to launch'
       flags: ["IGNORECASE"]
     files:
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.out"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.out"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.err"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.err"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.out"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.out"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.err"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.err"
     meaning: "SLURM node failure or job launch problem on platform: {{ platform_name }}"
     suggestion: "Check node status and resubmit job. May be transient hardware issue."
     context_lines: 10
@@ -131,10 +131,10 @@ errors:
       pattern: 'Traceback \(most recent call last\)|^\s*File .*, line [0-9]+'
       flags: ["MULTILINE"]
     files:
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.out"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.out"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.err"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.err"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.out"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.out"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.err"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.err"
     meaning: "Python exception occurred during execution"
     suggestion: "Review Python traceback for specific error and fix code"
     context_lines: 15
@@ -160,10 +160,10 @@ errors:
       pattern: 'ImportError|ModuleNotFoundError|No module named'
       flags: ["IGNORECASE"]
     files:
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.out"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.out"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.err"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.err"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.out"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.out"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.err"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.err"
     meaning: "Python module import failed"
     suggestion: "Check Python environment and install missing dependencies"
     context_lines: 10
@@ -178,10 +178,10 @@ errors:
       type: literal
       pattern: "KeyError"
     files:
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.out"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.out"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.err"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.err"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.out"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.out"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.err"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.err"
     meaning: "Dictionary key access error in Python code"
     suggestion: "Check data structure and key names in code"
     context_lines: 10
@@ -198,10 +198,10 @@ errors:
       pattern: 'NetCDF.*error|nc_open.*failed|Invalid.*netcdf'
       flags: ["IGNORECASE"]
     files:
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.out"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.out"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.err"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.err"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.out"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.out"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.err"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.err"
     meaning: "NetCDF file operation failed"
     suggestion: "Check NetCDF file exists, is readable, and not corrupted"
     context_lines: 10
@@ -217,10 +217,10 @@ errors:
       pattern: 'No such file|File not found|cannot open.*No such file|FileNotFoundError'
       flags: ["IGNORECASE"]
     files:
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.out"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.out"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.err"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.err"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.out"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.out"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.err"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.err"
     meaning: "Required input file is missing"
     suggestion: "Check file paths and ensure all input files exist"
     context_lines: 10
@@ -237,10 +237,10 @@ errors:
       pattern: 'Fortran runtime error|forrtl.*error|SIGSEGV|segmentation fault'
       flags: ["IGNORECASE"]
     files:
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.out"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.out"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.err"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.err"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.out"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.out"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.err"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.err"
     meaning: "Fortran model runtime error or segmentation fault"
     suggestion: "Check model configuration, input data, and memory settings"
     context_lines: 15
@@ -256,10 +256,10 @@ errors:
       pattern: 'MPI.*error|mpi_abort|MPI_ERR|Fatal error in PMPI'
       flags: ["IGNORECASE"]
     files:
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.out"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.out"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.err"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.err"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.out"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.out"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.err"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.err"
     meaning: "MPI communication or initialization error"
     suggestion: "Check MPI configuration, node communication, and process counts"
     context_lines: 15
@@ -276,10 +276,10 @@ errors:
       pattern: '\bERROR\b|\bFATAL\b|\bCRITICAL\b'
       flags: ["IGNORECASE"]
     files:
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.out"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.out"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.err"
-      - "ssh://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.err"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.out"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.out"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/*.err"
+      - "sftp://{{ hpc_user }}@{{ platform_name }}{{ hpc_log_dir }}/**/*.err"
     meaning: "Generic error keyword found in logs"
     suggestion: "Review error message for specific issue"
     context_lines: 5
