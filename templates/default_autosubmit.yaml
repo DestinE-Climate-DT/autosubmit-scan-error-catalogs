@@ -12,17 +12,14 @@
 #   - Remote SSH: sftp://climatedt-wf/path/to/config.yml
 #   - S3: s3://bucket/path/to/config.yml
 #   - GitHub: github://org:repo@ref/path/to/config.yml
-
 version: 1.0.0
 schema_version: 1.0.0
-
 metadata:
   name: "Autosubmit Scan"
   description: "Default error catalog for Autosubmit experiments with dynamic configuration"
   author: "autosubmit-scan"
   created: "2024-01-01T00:00:00+00:00"
   updated: "2024-01-01T00:00:00+00:00"
-
   # Dynamic variable extraction
   # Variables are extracted in order and can reference each other
   variables:
@@ -32,7 +29,6 @@ metadata:
       source: "env"
       pattern: "AUTOSUBMIT_EXPID"
       default: "a2sg"
-
     # Extract HPC username from experiment metadata
     # Can be overridden with: export AUTOSUBMIT_HPCUSER=myusername
     hpc_user:
@@ -41,7 +37,6 @@ metadata:
       method: "yaml_path"
       pattern: "HPCUSER"
       default: "unknown"
-
     # Extract remote HPC host from experiment metadata
     hpc_host:
       source: "file"
@@ -49,7 +44,6 @@ metadata:
       method: "yaml_path"
       pattern: "HPCHOST"
       default: "unknown"
-
     # Extract platform short name from experiment metadata
     platform_name:
       source: "file"
@@ -57,7 +51,6 @@ metadata:
       method: "yaml_path"
       pattern: "HPCHPCARCH_SHORT"
       default: "unknown"
-
     # Extract HPC log directory from experiment metadata
     hpc_log_dir:
       source: "file"
@@ -65,7 +58,6 @@ metadata:
       method: "yaml_path"
       pattern: "HPCLOGDIR"
       default: "/tmp/LOG_{{ expid }}"
-
 errors:
   # Critical Errors - Job Failures
   SlurmOutOfMemory:
@@ -86,7 +78,6 @@ errors:
     metadata:
       severity: critical
       category: resource
-
   SlurmTimeLimit:
     id: SlurmTimeLimit
     pattern:
@@ -105,7 +96,6 @@ errors:
     metadata:
       severity: critical
       category: resource
-
   SlurmNodeFailure:
     id: SlurmNodeFailure
     pattern:
@@ -124,7 +114,6 @@ errors:
     metadata:
       severity: critical
       category: infrastructure
-
   # Python Errors
   PythonTraceback:
     id: PythonTraceback
@@ -154,7 +143,6 @@ errors:
     metadata:
       severity: high
       category: code
-
   PythonImportError:
     id: PythonImportError
     pattern:
@@ -173,7 +161,6 @@ errors:
     metadata:
       severity: high
       category: environment
-
   PythonKeyError:
     id: PythonKeyError
     pattern:
@@ -191,7 +178,6 @@ errors:
     metadata:
       severity: medium
       category: code
-
   # NetCDF/Data Errors
   NetCDFError:
     id: NetCDFError
@@ -211,7 +197,6 @@ errors:
     metadata:
       severity: high
       category: data
-
   MissingInputFile:
     id: MissingInputFile
     pattern:
@@ -230,7 +215,6 @@ errors:
     metadata:
       severity: critical
       category: data
-
   # Fortran/Model Errors
   FortranRuntimeError:
     id: FortranRuntimeError
@@ -250,7 +234,6 @@ errors:
     metadata:
       severity: critical
       category: model
-
   MPIError:
     id: MPIError
     pattern:
@@ -269,7 +252,6 @@ errors:
     metadata:
       severity: critical
       category: infrastructure
-
   # General Errors
   ErrorKeyword:
     id: ErrorKeyword
@@ -282,6 +264,8 @@ errors:
       - "sftp://{{ hpc_user }}@{{ hpc_host }}{{ hpc_log_dir }}/**/*.out"
       - "sftp://{{ hpc_user }}@{{ hpc_host }}{{ hpc_log_dir }}/*.err"
       - "sftp://{{ hpc_user }}@{{ hpc_host }}{{ hpc_log_dir }}/**/*.err"
+      - "sftp://{{ hpc_user }}@{{ hpc_host }}{{ hpc_log_dir }}/../rundir/**/ifs.*"
+      - "sftp://{{ hpc_user }}@{{ hpc_host }}{{ hpc_log_dir }}/../rundir/**/NODE.*"
     meaning: "Generic error keyword found in logs"
     suggestion: "Review error message for specific issue"
     context_lines: 5
