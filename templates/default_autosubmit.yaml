@@ -58,6 +58,13 @@ metadata:
       method: "yaml_path"
       pattern: "HPCLOGDIR"
       default: "/tmp/LOG_{{ expid }}"
+    # Extract HPC root directory (base directory for rundir, restarts, etc.)
+    hpcrootdir:
+      source: "file"
+      path: "sftp://climatedt-wf/appl/AS/AUTOSUBMIT_DATA/{{ expid }}/conf/metadata/experiment_data.yml"
+      method: "yaml_path"
+      pattern: "HPCROOTDIR"
+      default: "/tmp/{{ expid }}"
 errors:
   # Critical Errors - Job Failures
   SlurmOutOfMemory:
@@ -264,8 +271,8 @@ errors:
       - "sftp://{{ hpc_user }}@{{ hpc_host }}{{ hpc_log_dir }}/**/*.out"
       - "sftp://{{ hpc_user }}@{{ hpc_host }}{{ hpc_log_dir }}/*.err"
       - "sftp://{{ hpc_user }}@{{ hpc_host }}{{ hpc_log_dir }}/**/*.err"
-      - "sftp://{{ hpc_user }}@{{ hpc_host }}{{ hpc_log_dir }}/../rundir/**/ifs.*"
-      - "sftp://{{ hpc_user }}@{{ hpc_host }}{{ hpc_log_dir }}/../rundir/**/NODE.*"
+      - "sftp://{{ hpc_user }}@{{ hpc_host }}{{ hpcrootdir }}/rundir/*/*/*/*/*/*/ifs.*"
+      - "sftp://{{ hpc_user }}@{{ hpc_host }}{{ hpcrootdir }}/rundir/*/*/*/*/*/*/NODE.*"
     meaning: "Generic error keyword found in logs"
     suggestion: "Review error message for specific issue"
     context_lines: 5
