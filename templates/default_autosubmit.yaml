@@ -41,35 +41,35 @@ metadata:
     # Can be overridden with: export AUTOSUBMIT_EXP_USER=username
     exp_user:
       source: "file"
-      path: "sftp://{{ climatedt_user }}@climatedt-wf/appl/AS/AUTOSUBMIT_DATA/{{ expid }}/conf/metadata/experiment_data.yml"
+      path: "sftp://climatedt-wf/appl/AS/AUTOSUBMIT_DATA/{{ expid }}/conf/metadata/experiment_data.yml"
       method: "yaml_path"
       pattern: "HPCUSER"
       default: "unknown"
     # Extract remote HPC host from experiment metadata
     hpc_host:
       source: "file"
-      path: "sftp://{{ climatedt_user }}@climatedt-wf/appl/AS/AUTOSUBMIT_DATA/{{ expid }}/conf/metadata/experiment_data.yml"
+      path: "sftp://climatedt-wf/appl/AS/AUTOSUBMIT_DATA/{{ expid }}/conf/metadata/experiment_data.yml"
       method: "yaml_path"
       pattern: "HPCHOST"
       default: "unknown"
     # Extract platform short name from experiment metadata
     platform_name:
       source: "file"
-      path: "sftp://{{ climatedt_user }}@climatedt-wf/appl/AS/AUTOSUBMIT_DATA/{{ expid }}/conf/metadata/experiment_data.yml"
+      path: "sftp://climatedt-wf/appl/AS/AUTOSUBMIT_DATA/{{ expid }}/conf/metadata/experiment_data.yml"
       method: "yaml_path"
       pattern: "HPCHPCARCH_SHORT"
       default: "unknown"
     # Extract HPC log directory from experiment metadata
     hpc_log_dir:
       source: "file"
-      path: "sftp://{{ climatedt_user }}@climatedt-wf/appl/AS/AUTOSUBMIT_DATA/{{ expid }}/conf/metadata/experiment_data.yml"
+      path: "sftp://climatedt-wf/appl/AS/AUTOSUBMIT_DATA/{{ expid }}/conf/metadata/experiment_data.yml"
       method: "yaml_path"
       pattern: "HPCLOGDIR"
       default: "/tmp/LOG_{{ expid }}"
     # Extract HPC root directory (base directory for rundir, restarts, etc.)
     hpcrootdir:
       source: "file"
-      path: "sftp://{{ climatedt_user }}@climatedt-wf/appl/AS/AUTOSUBMIT_DATA/{{ expid }}/conf/metadata/experiment_data.yml"
+      path: "sftp://climatedt-wf/appl/AS/AUTOSUBMIT_DATA/{{ expid }}/conf/metadata/experiment_data.yml"
       method: "yaml_path"
       pattern: "HPCROOTDIR"
       default: "/tmp/{{ expid }}"
